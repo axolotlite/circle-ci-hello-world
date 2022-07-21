@@ -1,4 +1,9 @@
 version: 2.1
+executors:
+  my-executor:
+    docker:
+      - image: circleci/node:13.8.0
+
 commands:
   sayhello:
     description: "Are these manditory?"
@@ -8,13 +13,10 @@ commands:
         default: "Hello World"
     steps:
       - run: echo <<parameters.to>>
-defaults: &defaults
-  docker:
-    - image: cicleci/node:13.8.0
+
 jobs:
   save_hello_world_output:
-    docker:
-      - image: circleci/node:13.8.0
+    executor: my-executor
     steps:
       - run: echo "hello world" > ~/output.txt
       - persist_to_workspace:
@@ -23,14 +25,13 @@ jobs:
             - output.txt
 
   print_output_file:
-    docker:
-      - image: circleci/node:13.8.0
+    executor: my-executor
     steps:
       - attach_workspace:
           at: ~/
       - run: cat ~/output.txt
   hello_world_command:
-    <<: *defaults 
+    executor: my-executor
     steps:
       - sayhello
 
