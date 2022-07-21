@@ -1,45 +1,28 @@
 version: 2.1
 
-executors:
-  my-executor:
-    docker:
-      - image: buildpack-deps:jessie
-    working_directory: /tmp
-
 jobs:
-  flow:
-    executor: my-executor
+  save_hello_world_output:
+    docker:
+      - image: circleci/node:13.8.0
     steps:
-      - run: mkdir -pm workspace
-      - run: echo "Hello, world!" > workspace/echo-output
-
-      # Persist the specified paths (workspace/echo-output) into the workspace for use in downstream job.
+      - run: echo "hello world" > ~/output.txt
       - persist_to_workspace:
-          # Must be an absolute path, or relative path from working_directory. This is a directory on the container which is
-          # taken to be the root directory of the workspace.
-          root: workspace
-          # Must be relative path from root
+          root: ~/
           paths:
-            - echo-output
+            - output.txt
 
-  downstream:
-    executor: my-executor
+  print_output_file:
+    docker:
+      - image: circleci/node:13.8.0
     steps:
       - attach_workspace:
-          # Must be absolute path or relative path from working_directory
-          at: /tmp/workspace
-
-      - run: |
-          if [[ `cat /tmp/workspace/echo-output` == "Hello, world!" ]]; then
-            echo "It worked!";
-          else
-            echo "Nope!"; exit 1
-          fi
+          at: ~/
+      - run: cat ~/output.txt
 
 workflows:
-  btd:
+  my_workflow:
     jobs:
-      - flow
-      - downstream:
+      - save_hello_world_output
+      - print_output_file:
           requires:
-            - flow
+            - save_hello_world_output
