@@ -45,4 +45,4 @@ jobs:
 workflows:
   my_workflow:
     jobs:
-      - hello_world_command
+      - print_pipe_id
