@@ -20,14 +20,13 @@ commands:
         type: string
     steps:
       - run: echo <<parameters.to>>
-  fail_code:
-    description: "returns non-zero code"
+  return_code:
+    description: "returns exit code"
+    parameters:
+      code:
+        type: integer
     steps:
-      - run: return 1
-  success_code:
-    description: "returns zero code"
-    steps:
-      - run: return 0
+      - run: exit <<parameters.code>>
 
 jobs:
   save_hello_world_output:
@@ -58,7 +57,8 @@ jobs:
     executor: my-executor
     steps:
       - run: "echo this code fails on purpose"
-      - fail_code
+      - return_code:
+          code: 1
       - run:
           name: "Failure Report"
           command: echo "Mission Failed Successfully"
@@ -67,7 +67,8 @@ jobs:
     executor: my-executor
     steps:
       - run: "echo this code succeeds on purpose"
-      - success_code
+      - return_code:
+          code: 0
       - run:
           name: "Success Report"
           command: echo "Mission Successfully Failed"
