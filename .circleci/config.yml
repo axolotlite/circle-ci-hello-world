@@ -15,8 +15,11 @@ commands:
       - run: echo <<parameters.to>>
   print_pipeline_id:
     description: "Prints the pipeline id for this process"
+    parameters:
+      to:
+        type: string
     steps:
-      - run: "echo $CIRCLE_WORKFLOW_ID"
+      - run: echo <<parameters.to>>
 jobs:
   save_hello_world_output:
     executor: my-executor
@@ -40,9 +43,11 @@ jobs:
   print_pipe_id:
     executor: my-executor
     steps:
-      - print_pipeline_id
+      - print_pipeline_id:
+          to: "$CIRCLE_WORKFLOW_ID" 
 
 workflows:
   my_workflow:
     jobs:
       - print_pipe_id
+          
