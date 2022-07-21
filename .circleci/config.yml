@@ -20,6 +20,15 @@ commands:
         type: string
     steps:
       - run: echo <<parameters.to>>
+  fail_code:
+    description: "returns non-zero code"
+    steps:
+      - run: return 1
+  success_code:
+    description: "returns zero code"
+    steps:
+      - run: return 0
+
 jobs:
   save_hello_world_output:
     executor: my-executor
@@ -45,9 +54,29 @@ jobs:
     steps:
       - print_pipeline_id:
           to: "$CIRCLE_WORKFLOW_ID" 
+  fail_on_purpose:
+    executor: my-executor
+    steps:
+      - run: "echo this code fails on purpose"
+      - fail_code
+      - run:
+          name: "Failure Report"
+          command: echo "Mission Failed Successfully"
+          when: on_fail
+  succeed_on_purpose:
+    executor: my-executor
+    steps:
+      - run: "echo this code succeeds on purpose"
+      - success_code
+      - run:
+          name: "Success Report"
+          command: echo "Mission Successfully Failed"
+          when: on_fail
 
 workflows:
   my_workflow:
     jobs:
-      - print_pipe_id
+      - fail_on_purpose
+      - succeed_on_purpose
+        
           
