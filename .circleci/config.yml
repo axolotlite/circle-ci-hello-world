@@ -1,5 +1,16 @@
 version: 2.1
-
+commands:
+  sayhello:
+    description: "Are these manditory?"
+    parameters:
+      to:
+        type: string
+        default: "Hello World"
+    steps:
+      - run: echo <<parameters.to>>
+defaults: &defaults
+  docker:
+    - image: cicleci/node:13.8.0
 jobs:
   save_hello_world_output:
     docker:
@@ -18,11 +29,12 @@ jobs:
       - attach_workspace:
           at: ~/
       - run: cat ~/output.txt
+  hello_world_command:
+    <<: *defaults 
+    steps:
+      - sayhello
 
 workflows:
   my_workflow:
     jobs:
-      - save_hello_world_output
-      - print_output_file:
-          requires:
-            - save_hello_world_output
+      - hello_world_command
