@@ -18,7 +18,7 @@ jobs:
           name: "Save hello"
           command: "echo text to output here > workspace/output.txt"
       - persist_to_workspace:
-          root: workspace
+          root: /tmp/workspace
           paths:
             - output.txt
   print_output_file:
