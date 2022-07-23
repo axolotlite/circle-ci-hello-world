@@ -1,0 +1,95 @@
+version: 2.1
+executors:
+  my-executor:
+    docker:
+      - image: circleci/node:13.8.0
+  my-aws-executor:
+      docker:
+        - image: amazon/aws-cli
+commands:
+  sayhello:
+    description: "Are these manditory?"
+    parameters:
+      to:
+        type: string
+        default: "Hello World"
+    steps:
+      - run: echo <<parameters.to>>
+  print_pipeline_id:
+    description: "Prints the pipeline id for this process"
+    parameters:
+      to:
+        type: string
+    steps:
+      - run: echo <<parameters.to>>
+  return_code:
+    description: "returns exit code"
+    parameters:
+      code:
+        type: integer
+    steps:
+      - run: exit <<parameters.code>>
+
+jobs:
+  save_hello_world_output:
+    executor: my-executor
+    steps:
+      - run: echo "hello world" > ~/output.txt
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - output.txt
+
+  print_output_file:
+    executor: my-executor
+    steps:
+      - attach_workspace:
+          at: ~/
+      - run: cat ~/output.txt
+  hello_world_command:
+    executor: my-executor
+    steps:
+      - sayhello
+  print_pipe_id:
+    executor: my-executor
+    steps:
+      - print_pipeline_id:
+          to: "$CIRCLE_WORKFLOW_ID" 
+  fail_on_purpose:
+    executor: my-executor
+    steps:
+      - run: "echo this code fails on purpose"
+      - return_code:
+          code: 1
+      - run:
+          name: "Failure Report"
+          command: echo "Mission Failed Successfully"
+          when: on_fail
+  succeed_on_purpose:
+    executor: my-executor
+    steps:
+      - run: "echo this code succeeds on purpose"
+      - return_code:
+          code: 0
+      - run:
+          name: "Success Report"
+          command: echo "Mission Successfully Failed"
+          when: on_fail
+  create_infrastructure:
+      executor: my-aws-executor
+      steps:
+        - checkout
+        - run:
+            name: create Cloudformation Stack
+            command:  |
+              aws cloudformation deploy \
+                --template-file template.yml \
+                --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5} \
+                --region us-east-1
+
+workflows:
+  my_workflow:
+    jobs:
+      - create_infrastructure
+        
+          
