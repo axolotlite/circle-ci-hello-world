@@ -118,8 +118,8 @@ jobs:
       # - attach_workspace:
       #     at: ~/
       # - run: ansible-playbook -i inventory main.yml
-      - run: ping -c 3 8.8.8.8
-      - run: ping -c 3 3.87.42.2
+      - run: sudo ping -c 3 8.8.8.8
+      - run: sudo ping -c 3 3.87.42.2
 workflows:
   my_workflow:
     jobs:
