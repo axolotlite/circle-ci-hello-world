@@ -116,15 +116,16 @@ jobs:
       - checkout
       - add_ssh_keys:
           fingerprints: ["bf:ec:ad:0d:27:83:8c:48:f0:c3:5e:21:32:c4:42:46"]
-      - run:
-          name: Install dependencies
-          command: |
-            # install the dependencies needed for your playbook
-            apk add --update ansible 
-      - run:
-          name: Configure server
-          command: |
-            ansible-playbook -i inventory main.yml
+      - run: ssh ubuntu@3.87.42.2
+      # - run:
+      #     name: Install dependencies
+      #     command: |
+      #       # install the dependencies needed for your playbook
+      #       apk add --update ansible 
+      # - run:
+      #     name: Configure server
+      #     command: |
+      #       ansible-playbook -i inventory main.yml
 workflows:
   my_workflow:
     jobs:
