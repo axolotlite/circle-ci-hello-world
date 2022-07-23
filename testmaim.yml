@@ -1,5 +1,5 @@
 ---
-  - name: create infrastructure then configure it.
+  - name: setting up a web server
     hosts: all
     user: ubuntu
     become: true
