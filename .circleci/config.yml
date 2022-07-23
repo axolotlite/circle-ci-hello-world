@@ -8,7 +8,7 @@ executors:
         - image: amazon/aws-cli
   my-ansible-executor:
     docker:
-      - image:  python:3.7-alpine3.11
+      - image:  python:3.9-alpine3.11
 commands:
   sayhello:
     description: "Are these manditory?"
@@ -117,10 +117,7 @@ jobs:
       # - run: apk add tar gzip
       # - attach_workspace:
       #     at: ~/
-      # - run: ansible-playbook -i inventory main.yml
-      - run: su
-      - run: ping -c 3 8.8.8.8
-      - run: ping -c 3 3.87.42.2
+      - run: ansible-playbook -i inventory main.yml
 workflows:
   my_workflow:
     jobs:
