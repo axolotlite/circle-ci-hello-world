@@ -1,0 +1,7 @@
+---
+  name: create infrastructure then configure it.
+  become: yes
+  become_method: sudo
+  become_user: root
+  roles:
+    setup
