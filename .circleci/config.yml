@@ -9,6 +9,9 @@ executors:
   my-ansible-executor:
     docker:
       - image:  python:3.9-alpine3.11
+  my-arch-executor:
+    docker:
+      - image: archlinux:latest
 commands:
   sayhello:
     description: "Are these manditory?"
@@ -113,7 +116,8 @@ jobs:
       - add_ssh_keys:
           fingerprints: 
             - "bf:ec:ad:0d:27:83:8c:48:f0:c3:5e:21:32:c4:42:46"
-      - install_ansible
+      - run: pacman -S ansible
+      # - install_ansible
       # - run: apk add tar gzip
       # - attach_workspace:
       #     at: ~/
