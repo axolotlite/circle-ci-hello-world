@@ -120,12 +120,11 @@ jobs:
           name: Install dependencies
           command: |
             # install the dependencies needed for your playbook
-            apk add --update ansible 
-      - run: ssh ubuntu@3.87.42.2
-      # - run:
-      #     name: Configure server
-      #     command: |
-      #       ansible-playbook -i inventory main.yml
+            apk add --update ansible openssh
+      - run:
+          name: Configure server
+          command: |
+            ansible-playbook -i inventory main.yml
 workflows:
   my_workflow:
     jobs:
