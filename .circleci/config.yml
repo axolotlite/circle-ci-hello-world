@@ -109,19 +109,22 @@ jobs:
           root: ~/
           paths: 
             - inventory
-  configure_infrastructure:
-    executor: my-ansible-executor
+  configure_infrastructure: 
+    docker:
+      - image: python:3.7-alpine3.11
     steps:
       - checkout
       - add_ssh_keys:
-          fingerprints: 
-            - "bf:ec:ad:0d:27:83:8c:48:f0:c3:5e:21:32:c4:42:46"
-      - run: pacman -S ansible
-      # - install_ansible
-      # - run: apk add tar gzip
-      # - attach_workspace:
-      #     at: ~/
-      - run: ansible-playbook -i inventory main.yml
+          fingerprints: ["bf:ec:ad:0d:27:83:8c:48:f0:c3:5e:21:32:c4:42:46"]
+      - run:
+          name: Install dependencies
+          command: |
+            # install the dependencies needed for your playbook
+            apk add --update ansible 
+      - run:
+          name: Configure server
+          command: |
+            ansible-playbook -i inventory main.yml
 workflows:
   my_workflow:
     jobs:
