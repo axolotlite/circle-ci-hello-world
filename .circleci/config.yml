@@ -116,7 +116,7 @@ jobs:
       - run: apk add tar gzip
       - attach_workspace:
           at: ~/
-      - run: ansible -i ~/inventory main.yml
+      - run: ansible-playbook -i ~/inventory main.yml
 workflows:
   my_workflow:
     jobs:
