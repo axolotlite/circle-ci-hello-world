@@ -35,7 +35,7 @@ commands:
   install_ansible:
     description: updates the system and install ansible
     steps:
-      - run: apt add --update ansible
+      - run: apk add --update ansible
 jobs:
   save_hello_world_output:
     executor: my-executor
@@ -113,7 +113,7 @@ jobs:
       - add_ssh_keys:
           fingerprints: ["bf:ec:ad:0d:27:83:8c:48:f0:c3:5e:21:32:c4:42:46"]
       - install_ansible
-      - run: apt add tar gzip
+      - run: apk add tar gzip
       - attach_workspace:
           at: ~/
       - run: ansible -i ~/inventory main.yml
