@@ -116,13 +116,10 @@ jobs:
       - run: apk add tar gzip
       - attach_workspace:
           at: ~/
-      - run: ansible-playbook -i ~/inventory main.yml
+      - run: ansible-playbook main.yml
 workflows:
   my_workflow:
     jobs:
-      - create_infrastructure
       - configure_infrastructure:
-          requires:
-            - create_infrastructure
         
           
