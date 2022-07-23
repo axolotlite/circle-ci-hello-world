@@ -11,7 +11,7 @@ Resources:
       KeyName: basic_key
       # Change this, as applicable to you
       # You may need to find out what instance types are available in your region - use https://cloud-images.ubuntu.com/locator/ec2/
-      ImageId: 'ami-09f0bb50202ca06b0'
+      ImageId: 'ami-0cff7528ff583bf9a'
       InstanceType: t2.micro
   InstanceSecurityGroup:
     Type: 'AWS::EC2::SecurityGroup'
