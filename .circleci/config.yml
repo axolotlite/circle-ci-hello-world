@@ -32,13 +32,10 @@ commands:
         type: integer
     steps:
       - run: exit <<parameters.code>>
-  get_key:
-    description: easing the use of fingerprints
-    - add_ssh_keys:
-      fingerprints: ["bf:ec:ad:0d:27:83:8c:48:f0:c3:5e:21:32:c4:42:46"]
   install_ansible:
-    description: installing ansible using apt
-    - runs: apt add --update ansible
+    description: updates the system and install ansible
+    steps:
+      - run: apk add --update ansible
 jobs:
   save_hello_world_output:
     executor: my-executor
@@ -85,46 +82,47 @@ jobs:
           command: echo "Mission Successfully Failed"
           when: on_fail
   create_infrastructure:
-      executor: my-aws-executor
-      steps:
-        - checkout
-        - run:
-            name: create Cloudformation Stack
-            command:  |
-              aws cloudformation create-stack \
-                --template-body file://template.yml \
-                --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5} \
-                --region us-east-1
-        - run:
-            name: await stack completion
-            command:
-              aws cloudformation wait stack-creation-complete \
-              --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5} \
-              --region us-east-1
-        - run: echo "[all]" > ~/inventory
-        - run: aws ec2 describe-instances \
-                --query 'Reservations[*].Instances[*].PublicIpAddress' \
-                --filters "Name=tag:Project,Values=udacity" \
-                --output text >> ~/inventory
-        - persist_to_workspace:
-          root: ~/
-          paths:
-            - inventory
-  configure_infrastructure:
-    executor: my_ansible_executor
+    executor: my-aws-executor
     steps:
       - checkout
-      - get_key
+      - run:
+          name: create Cloudformation Stack
+          command:  |
+            aws cloudformation create-stack \
+              --template-body file://template.yml \
+              --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5} \
+              --region us-east-1
+      - run:
+          name: await stack completion
+          command:
+            aws cloudformation wait stack-create-complete --stack-name=myStack-${CIRCLE_WORKFLOW_ID:0:5} --region=us-east-1
+      - run: echo "[all]" > ~/inventory
+      - run: aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --output text >> ~/inventory
+      - run:
+          name: Install tar utility
+          command: |
+            yum install -y tar gzip
+      - persist_to_workspace:
+          root: ~/
+          paths: 
+            - inventory
+  configure_infrastructure:
+    executor: my-ansible-executor
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints: ["bf:ec:ad:0d:27:83:8c:48:f0:c3:5e:21:32:c4:42:46"]
       - install_ansible
+      - run: apk add tar gzip
       - attach_workspace:
           at: ~/
-      - run: ansible -i ~/inventory main.yml
+      - run: ansible-playbook -i ~/inventory main.yml
 workflows:
   my_workflow:
     jobs:
       - create_infrastructure
       - configure_infrastructure:
-        requires:
-          - create_infrastructure
+          requires:
+            - create_infrastructure
         
           
