@@ -3,7 +3,9 @@ executors:
   my-executor:
     docker:
       - image: circleci/node:13.8.0
-
+  my-aws-executor:
+      docker:
+        - image: amazon/aws-cli
 commands:
   sayhello:
     description: "Are these manditory?"
@@ -73,11 +75,21 @@ jobs:
           name: "Success Report"
           command: echo "Mission Successfully Failed"
           when: on_fail
+  create_infrastructure:
+      executor: my-aws-executor
+      steps:
+        - checkout
+        - run:
+            name: create Cloudformation Stack
+            command:  |
+              aws cloudfomration deploy \
+                --template-file template.yml \
+                --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5} \
+                --region us-east-1
 
 workflows:
   my_workflow:
     jobs:
-      - fail_on_purpose
-      - succeed_on_purpose
+      - create_infrastructure
         
           
