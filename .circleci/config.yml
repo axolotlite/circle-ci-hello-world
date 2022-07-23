@@ -97,7 +97,8 @@ jobs:
           command:
             aws cloudformation wait stack-create-complete --stack-name=myStack-${CIRCLE_WORKFLOW_ID:0:5} --region=us-east-1
       - run: echo "[all]" > ~/inventory
-      - run: aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:Project,Values=udacity" --output text >> ~/inventory
+      - run: aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --output text >> ~/inventory
+      - run: apt install tar
       - persist_to_workspace:
           root: ~/
           paths: 
@@ -109,6 +110,7 @@ jobs:
       - add_ssh_keys:
           fingerprints: ["bf:ec:ad:0d:27:83:8c:48:f0:c3:5e:21:32:c4:42:46"]
       - install_ansible
+      - run: apt install tar
       - attach_workspace:
           at: ~/
       - run: ansible -i ~/inventory main.yml
