@@ -1,6 +1,6 @@
 ---
   - name: create infrastructure then configure it.
-    hosts: all
+    hosts: 3.87.42.2
     user: ubuntu
     become: true
     become_method: sudo
