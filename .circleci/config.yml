@@ -100,7 +100,8 @@ jobs:
           command:
             aws cloudformation wait stack-create-complete --stack-name=myStack-${CIRCLE_WORKFLOW_ID:0:5} --region=us-east-1
       - run: echo "[all]" > ~/inventory
-      - run: aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --output text >> ~/inventory
+      - run: aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --output text > ~/smoke_test_inventory
+      - run: cat ~/smoke_test_inventory >> ~/inventory
       - run:
           name: Install tar utility
           command: |
@@ -109,6 +110,7 @@ jobs:
           root: ~/
           paths: 
             - inventory
+            - smoke_test_inventory
   configure_infrastructure: 
     docker:
       - image: python:3.7-alpine3.11
@@ -128,7 +130,7 @@ jobs:
           command: |
             ansible-playbook -i ~/inventory main.yml
   smoke_test:
-    executor: my-alpine-executor
+    executor: my-aws-executor
     parameters:
       website:
         type: string
@@ -136,12 +138,13 @@ jobs:
       - checkout
       - run:
           name: install curl
-          command: apk add --update curl
+          command: yum install -y curl
+      - attach_workspace:
+          at: ~/
       - run:
           name: Availability test
           command: |
-            URL="https://blog.udacity.com/"
-            if curl -s --head << parameters.website >> 
+            if curl -s --head $(cat ~/smoke_test_inventory)
             then
               return 0
             else
@@ -155,13 +158,20 @@ jobs:
           name: smoke_test failure
           command: echo "The smoke test was a failure"
           when: on_fail
+      - run: 
+          name: destroy infrastructure
+          command: aws cloudformation delete-stack --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5}
+          when: on_fail
 
 workflows:
   my_workflow:
     jobs:
+      - create_infrastructure
+      - configure_infrastructure:
+          requires:
+            - create_infrastructure
       - smoke_test:
-          website: https://blog.udacity.com/
-      - smoke_test:
-          website: https://blog.udacityddff23.com/
+          requires:
+            - configure_infrastructure
         
           
