@@ -9,6 +9,9 @@ executors:
   my-ansible-executor:
     docker:
       - image:  python:3.9-alpine3.11
+  my-alpine-executor:
+    docker:
+      - image:  alpine:3.15
 commands:
   sayhello:
     description: "Are these manditory?"
@@ -124,12 +127,41 @@ jobs:
           name: Configure server
           command: |
             ansible-playbook -i ~/inventory main.yml
+  smoke_test:
+    executor: my-alpine-executor
+    parameters:
+      website:
+        type: string
+    steps:
+      - checkout
+      - run:
+          name: install curl
+          command: apk add --update curl
+      - run:
+          name: Availability test
+          command: |
+            URL="https://blog.udacity.com/"
+            if curl -s --head << parameters.website >> 
+            then
+              return 0
+            else
+              return 1
+            fi
+      - run:
+          name: smoke_test successful
+          command: echo "The smoke test was a Success"
+          when: on_success
+      - run:
+          name: smoke_test failure
+          command: echo "The smoke test was a failure"
+          when: on_fail
+
 workflows:
   my_workflow:
     jobs:
-      - create_infrastructure
-      - configure_infrastructure:
-          requires: 
-            - create_infrastructure
+      - smoke_test:
+          website: https://blog.udacity.com/
+      - smoke_test:
+          website: https://blog.udacityddff23.com/
         
           
