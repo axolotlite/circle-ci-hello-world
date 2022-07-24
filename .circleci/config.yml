@@ -39,6 +39,19 @@ commands:
     description: updates the system and install ansible
     steps:
       - run: apk add --update ansible
+  destroy_infrastructure:
+    description:  deletes an ec2 instance
+    steps:
+      - run:
+          name: destroy infrastructure
+          command: aws cloudformation delete-stack --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5}
+  install_workspace_utils:
+    description: installs tar and gzip
+    steps:
+      - run:
+          name: Install tar utility
+          command: |
+            yum install -y tar gzip
 jobs:
   save_hello_world_output:
     executor: my-executor
@@ -102,10 +115,7 @@ jobs:
       - run: echo "[all]" > ~/inventory
       - run: aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --output text > ~/smoke_test_inventory
       - run: cat ~/smoke_test_inventory >> ~/inventory
-      - run:
-          name: Install tar utility
-          command: |
-            yum install -y tar gzip
+      - install_workspace_utils
       - persist_to_workspace:
           root: ~/
           paths: 
@@ -136,6 +146,7 @@ jobs:
     #     type: string
     steps:
       - checkout
+      - install_workspace_utils
       - run:
           name: install curl
           command: yum install -y curl
@@ -158,9 +169,7 @@ jobs:
           name: smoke_test failure
           command: echo "The smoke test was a failure"
           when: on_fail
-      - run: 
-          name: destroy infrastructure
-          command: aws cloudformation delete-stack --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5}
+      - destroy_infrastructure:
           when: on_fail
 
 workflows:
