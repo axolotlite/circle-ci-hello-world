@@ -115,7 +115,7 @@ jobs:
     steps:
       - checkout
       - attach_workspace:
-        at: ~/
+          at: ~/
       - add_ssh_keys:
           fingerprints: ["bf:ec:ad:0d:27:83:8c:48:f0:c3:5e:21:32:c4:42:46"]
       - run:
@@ -132,6 +132,7 @@ workflows:
     jobs:
       - create_infrastructure
       - configure_infrastructure:
-        - requires: create_infrastructure
+          requires: 
+            create_infrastructure
         
           
