@@ -45,6 +45,7 @@ commands:
       - run:
           name: destroy infrastructure
           command: aws cloudformation delete-stack --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5}
+          when: on_fail
   install_workspace_utils:
     description: installs tar and gzip
     steps:
@@ -169,8 +170,7 @@ jobs:
           name: smoke_test failure
           command: echo "The smoke test was a failure"
           when: on_fail
-      - destroy_infrastructure:
-          when: on_fail
+      - destroy_infrastructure
 
 workflows:
   my_workflow:
