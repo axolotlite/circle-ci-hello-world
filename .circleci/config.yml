@@ -158,9 +158,9 @@ jobs:
           command: |
             if curl -s --head $(cat ~/smoke_test_inventory):3000
             then
-              return 0
+              exit 0
             else
-              return 1
+              exit 1
             fi
       - run:
           name: smoke_test successful
