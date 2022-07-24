@@ -156,7 +156,7 @@ jobs:
       - run:
           name: Availability test
           command: |
-            if curl -s --head $(cat ~/smoke_test_inventory)
+            if curl -s --head $(cat ~/smoke_test_inventory):3000
             then
               return 0
             else
