@@ -131,9 +131,9 @@ jobs:
             ansible-playbook -i ~/inventory main.yml
   smoke_test:
     executor: my-aws-executor
-    parameters:
-      website:
-        type: string
+    # parameters:
+    #   website:
+    #     type: string
     steps:
       - checkout
       - run:
