@@ -9,9 +9,6 @@ executors:
   my-ansible-executor:
     docker:
       - image:  python:3.9-alpine3.11
-  my-arch-executor:
-    docker:
-      - image: archlinux:latest
 commands:
   sayhello:
     description: "Are these manditory?"
