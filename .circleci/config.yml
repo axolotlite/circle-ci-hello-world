@@ -171,16 +171,29 @@ jobs:
           command: echo "The smoke test was a failure"
           when: on_fail
       - destroy_infrastructure
-
+  create_and_deploy_front_end:
+    executor: my-aws-executor
+    steps:
+      - checkout
+      - run:
+          name: make command executable
+          command: chmod +x scripts/parameterize.sh
+      - run:
+          name: create parameter file
+          command: ./scripts/parameterize.sh mybucket-${CIRCLE_WORKFLOW_ID:0:7}
+      - run:
+          name: Execute bucket.yml
+          command: |
+            aws cloudformation create-stack --template-body file://bucket.yml --stack-name stack-create-bucket-${CIRCLE_WORKFLOW_ID:0:7} --parameters  file://bucket_parameters.json 
+      - run:
+          name: wait for cloudfront to finish
+          command: aws cloudformation wait stack-create-complete --stack-name=stack-create-bucket-${CIRCLE_WORKFLOW_ID:0:7}
+      - run:
+          name: move contents to s3 bucket
+          command: aws s3 sync . s3://mybucket-${CIRCLE_WORKFLOW_ID:0:7} --delete
 workflows:
   my_workflow:
     jobs:
-      - create_infrastructure
-      - configure_infrastructure:
-          requires:
-            - create_infrastructure
-      - smoke_test:
-          requires:
-            - configure_infrastructure
+      - create_and_deploy_front_end
         
           
