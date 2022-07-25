@@ -40,11 +40,14 @@ commands:
     steps:
       - run: apk add --update ansible
   destroy_infrastructure:
-    description:  deletes an ec2 instance
+    description:  destroys cloudformation on failure
+    parameters:
+      stackName:
+        type: string
     steps:
       - run:
           name: destroy infrastructure
-          command: aws cloudformation delete-stack --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5}
+          command: aws cloudformation delete-stack --stack-name <<parameters.stackName>>
           when: on_fail
   install_workspace_utils:
     description: installs tar and gzip
@@ -170,7 +173,8 @@ jobs:
           name: smoke_test failure
           command: echo "The smoke test was a failure"
           when: on_fail
-      - destroy_infrastructure
+      - destroy_infrastructure:
+          stackName: myStack-${CIRCLE_WORKFLOW_ID:0:5}
   create_and_deploy_front_end:
     executor: my-aws-executor
     steps:
@@ -181,7 +185,9 @@ jobs:
             aws cloudformation deploy --template-file bucket.yml --stack-name stack-create-bucket-${CIRCLE_WORKFLOW_ID:0:7} --parameter-overrides MyBucketName="mybucket-${CIRCLE_WORKFLOW_ID:0:7}"
       - run:
           name: upload git repo content to s3 bucket
-          command: aws s3 sync index.html s3://mybucket-${CIRCLE_WORKFLOW_ID:0:7} --delete
+          command: aws s3 sync pages/ s3://mybucket-${CIRCLE_WORKFLOW_ID:0:7} --delete
+      - destroy_infrastructure:
+          stackName: stack-create-bucket-${CIRCLE_WORKFLOW_ID:0:7}
           
       
 workflows:
