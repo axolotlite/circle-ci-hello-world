@@ -189,22 +189,22 @@ jobs:
       - destroy_infrastructure:
           stackName: stack-create-bucket-${CIRCLE_WORKFLOW_ID:0:7}
   # Fetch and save the pipeline ID (bucket ID) responsible for the last release.
-get_last_deployment_id:
-  executor: my-aws-executor
-  steps:
-    - checkout
-    - run: yum install -y tar gzip
-    - run:
-        name: Fetch and save the old pipeline ID (bucket name) responsible for the last release.
-        command: |
-          aws cloudformation list-exports --query "Exports[?Name==\`PipelineID\`].Value" --no-paginate --output text > ~/textfile.txt
-    - run:
-        name: test pipeline acquisition
-        command: cat ~/textfile.txt
-    # - persist_to_workspace:
-    #     root: ~/
-    #     paths: 
-    #       - textfile.txt 
+  get_last_deployment_id:
+    executor: my-aws-executor
+    steps:
+      - checkout
+      # - run: yum install -y tar gzip
+      - run:
+          name: Fetch and save the old pipeline ID (bucket name) responsible for the last release.
+          command: |
+            aws cloudformation list-exports --query "Exports[?Name==\`PipelineID\`].Value" --no-paginate --output text > ~/textfile.txt
+      - run:
+          name: test pipeline acquisition
+          command: cat ~/textfile.txt
+      # - persist_to_workspace:
+      #     root: ~/
+      #     paths: 
+      #       - textfile.txt 
   
       
 workflows:
