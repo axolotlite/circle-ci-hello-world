@@ -223,7 +223,3 @@ jobs:
 workflows:
   my_workflow:
     jobs:
-      - get_last_deployment_id
-      - clean_up_old_front_end:
-          requires:
-            - get_last_deployment_id
